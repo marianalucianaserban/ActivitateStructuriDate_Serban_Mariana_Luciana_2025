@@ -1,0 +1,2 @@
+# ActivitateStructuriDate_Serban_Mariana_Luciana_2025
+seminar SDD 2025
