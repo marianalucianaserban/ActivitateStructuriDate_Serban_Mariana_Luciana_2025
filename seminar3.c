@@ -24,7 +24,6 @@ void afisareMasina(Masina masina) {
 	printf("NumeSofer: %s\n", masina.numeSofer);
 	printf("Serie: %c\n\n", masina.serie);
 
-
 }
 
 void afisareVectorMasini(Masina* masini, int nrMasini) {
