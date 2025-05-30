@@ -17,8 +17,7 @@ struct Masina initializare(int id, int nrLocuri, const char* marca, float capaci
     m.normaPoluare = normaPoluare;
     if (marca == NULL)
         m.marca = NULL;
-    else
-    {
+    else{
         m.marca = (char*)malloc(strlen(marca) + 1);
         strcpy_s(m.marca, strlen(marca) + 1, marca);
     }
@@ -50,7 +49,6 @@ void afisareVector(struct Masina* vector, int nrElemente)
 }
 
 struct Masina* copiazaPrimeleMasini(struct Masina* vector, int nrElemente, int nrElementeCopiate) {
-    //copiem intr-un vector nou pe care il vom returna primele nrElementeCopiate
     if (nrElementeCopiate > nrElemente)
         nrElementeCopiate = nrElemente;
     struct Masina* vectorNou = NULL;
@@ -76,9 +74,6 @@ void dezalocare1(struct Masina** vector, int* nrElemente)
 }
 
 void copiazaMasiniCuCCMare(struct Masina* vector, char nrElemente, float prag, struct Masina** vectorNou, int* dimensiune) {
-    //parametrul prag poate fi modificat in functie de 
-    // tipul atributului ales pentru a indeplini o conditie
-    //este creat un nou vector cu elementele care indeplinesc acea conditie
 
     *dimensiune = 0;
     for (char i = 0; i < nrElemente; i++)
@@ -100,8 +95,6 @@ void copiazaMasiniCuCCMare(struct Masina* vector, char nrElemente, float prag, s
 }
 
 struct Masina getPrimaMasinaDupaMarca(struct Masina* vector, int nrElemente, const char* conditie) {
-    //trebuie cautat elementul care indeplineste o conditie
-    //dupa atributul de tip char*. Acesta este returnat.
     for (int i = 0; i < nrElemente; i++)
     {
         if (strcmp(vector[i].marca, conditie) == 0)
@@ -125,12 +118,12 @@ int main() {
     afisareVector(vectorMasiniCopiate, nrElemCop);
     dezalocare1(&vectorMasiniCopiate, &nrElemCop);
 
-    printf("afisare masini cu capacitate mai mare");
+    printf("Afisare masini cu capacitate mai mare");
     copiazaMasiniCuCCMare(vector, nrElem, 35, &vectorMasiniCopiate, &nrElemCop);
     afisareVector(vectorMasiniCopiate, nrElemCop);
     dezalocare1(&vectorMasiniCopiate, &nrElemCop);
 
-    struct Masina m1 = getPrimaMasinaDupaMarca(vector, nrElem, "Ooel");
+    struct Masina m1 = getPrimaMasinaDupaMarca(vector, nrElem, "Mazda");
     afisare(m1);
     dezalocare1(&vector, &nrElem);
 

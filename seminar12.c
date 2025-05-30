@@ -183,6 +183,7 @@ void afisareGraf(NodLP* graf) {
 }
 
 int main() {
+	
 	NodLP* graf = citireGrafDinFisiere("masini.txt", "muchii.txt");
 	afisareGraf(graf);
 	dezalocareNoduriGraf(&graf);

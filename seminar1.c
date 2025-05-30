@@ -19,6 +19,7 @@ struct Masina initializare(int id, int nrLocuri, const char* marca, float capaci
     m.marca = (char*)malloc(strlen(marca) + 1);
     strcpy_s(m.marca, strlen(marca) + 1, marca);
     return m;
+
 }
 
 void afisare(struct Masina m)
@@ -27,7 +28,7 @@ void afisare(struct Masina m)
     printf("Marca: %s\n", m.marca);
     printf("Numar locuri: %d\n", m.nrLocuri);
     printf("Capacitate cilindrica: %f\n", m.capacitateC);
-    printf("Norma poluare: Euro %c\n", m.normaPoluare);
+    printf("Norma poluare: Euro %c\n\n", m.normaPoluare);
 }
 
 void modifica_nrLocuri(struct Masina* m, int nrNou)
@@ -35,6 +36,7 @@ void modifica_nrLocuri(struct Masina* m, int nrNou)
     if (nrNou > 0)
         m->nrLocuri = nrNou;
 }
+
 
 void dezalocare(struct Masina* m) {
     free(m->marca);
@@ -45,11 +47,13 @@ int main() {
     struct Masina masina = initializare(1, 5, "Dacia", 1.5, '4');
     afisare(masina);
     modifica_nrLocuri(&masina, 400);
-    printf("\n");
+    printf("--------------------------------------------------");
     afisare(masina);
     dezalocare(&masina);
     afisare(masina);
     printf("%d \n", sizeof(char*));
     printf("%d", sizeof(masina));
+
     return 0;
+
 }

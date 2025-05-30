@@ -77,6 +77,7 @@ void adaugaMasinaInLista(Lista* list, Masina masinaNoua) {
 	list->ultim = p;
 }
 
+
 void adaugaLaInceputInLista(Lista* list, Masina masinaNoua) {
 	Nod* p = (Nod*)malloc(sizeof(Nod));
 	p->info = masinaNoua;
@@ -90,13 +91,14 @@ void adaugaLaInceputInLista(Lista* list, Masina masinaNoua) {
 	list->prim = p;
 }
 
+
 Lista citireLDMasiniDinFisier(const char* numeFisier) {
 	FILE* f = fopen(numeFisier, "r");
 	Lista list;
 	list.prim = NULL;
 	list.ultim = NULL;
 	if (!f) {
-		printf("Eroare la deschiderea fisierului!\n");
+		printf("Eroare la deschidere fisier\n");
 		return list;
 	}
 	while (!feof(f)) {
@@ -154,7 +156,7 @@ void stergeMasinaDupaID(Lista* list, int id) {
 		}
 		p = p->next;
 	}
-	printf("Masina cu ID %d nu a fost gasita.\n", id);
+	printf("Masina cu ID %d nu a fost gasita\n", id);
 }
 
 char* getNumeSoferMasinaScumpa(Lista list) {
@@ -167,6 +169,8 @@ char* getNumeSoferMasinaScumpa(Lista list) {
 		}
 		p = p->next;
 	}
+
+
 	char* numeSofer = (char*)malloc(strlen(maxMasina->info.numeSofer) + 1);
 	strcpy(numeSofer, maxMasina->info.numeSofer);
 	return numeSofer;
@@ -178,6 +182,7 @@ int main() {
 	printf("Lista initiala de masini:\n");
 	afisareListaMasini(lista);
 
+	
 	printf("Pretul mediu al masinilor: %.2f\n", calculeazaPretMediu(lista));
 
 	char* sofer = getNumeSoferMasinaScumpa(lista);

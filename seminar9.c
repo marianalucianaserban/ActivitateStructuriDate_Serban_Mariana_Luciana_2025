@@ -101,16 +101,11 @@ void adaugaMasinaInArbore(Nod** radacina, Masina masinaNoua) {
 }
 
 Nod* citireArboreDeMasiniDinFisier(const char* numeFisier) {
-	//functia primeste numele fisierului, il deschide si citeste toate masinile din fisier
-	//prin apelul repetat al functiei citireMasinaDinFisier()
-	//ATENTIE - la final inchidem fisierul/stream-ul
+
 	FILE* file = fopen(numeFisier, "r");
 	Nod* radacina = NULL;
 	while (!feof(file))
 	{
-		//facem ca mai jos si nu direct in functie,  adaugaMasinaInArbore(&radacina, citireMasinaDinDisier(file))
-		//deoarece daca fac ca mai sus o sa aloc de 2 ori spatiu, o sa aloc spatiu o data in citiremasina si inca
-		// o data spatiu in adaugaMasinaInArbore pentru ca am facut deepcopy
 
 		Masina m = citireMasinaDinFisier(file);
 		adaugaMasinaInArbore(&radacina, m);
@@ -122,23 +117,12 @@ Nod* citireArboreDeMasiniDinFisier(const char* numeFisier) {
 }
 
 void afisareArborePreOrdine(Nod* radacina) {
-	//afiseaza toate elemente de tip masina din arborele creat
-	//prin apelarea functiei afisareMasina()
-	//parcurgerea arborelui poate fi realizata in TREI moduri
-	//folositi toate cele TREI moduri de parcurgere
-
-	//inordine -> SRD
-	//postordine -> SDR
-	//preordine -> RSD
-	//in/post/pre ne zice pozitia lu R, mereu punem SD ca suntem europeni
-
-	//o sa folosim preordine (RSD)
+	//preordine (RSD)
 	if (radacina != NULL)
 	{
 		afisareMasina(radacina->info);
 		afisareArborePreOrdine(radacina->st);
 		afisareArborePreOrdine(radacina->dr);
-
 	}
 }
 
@@ -148,7 +132,6 @@ void afisareArboreInOrdine(Nod* radacina) {
 		afisareArboreInOrdine(radacina->st);
 		afisareMasina(radacina->info);
 		afisareArboreInOrdine(radacina->dr);
-
 	}
 }
 
@@ -191,15 +174,12 @@ Masina getMasinaByID(Nod* radacina, int id) {
 }
 
 int determinaNumarNoduri(Nod* radacina) {
-	//calculeaza numarul total de noduri din arborele binar de cautare
 	if (radacina != NULL)
 		return 1 + determinaNumarNoduri(radacina->st) + determinaNumarNoduri(radacina->dr);
 	else return 0;
 }
 
 int calculeazaInaltimeArbore(Nod* radacina) {
-	//calculeaza inaltimea arborelui care este data de 
-	//lungimea maxima de la radacina pana la cel mai indepartat nod frunza
 	Nod* x = radacina;
 	if (radacina != NULL)
 	{
@@ -222,6 +202,8 @@ int calculeazaInaltimeArbore(Nod* radacina) {
 		return 0;
 }
 
+
+
 int calculeazaInaltimeArbore2(Nod* radacina) {
 
 	if (radacina == NULL)
@@ -233,7 +215,6 @@ int calculeazaInaltimeArbore2(Nod* radacina) {
 
 
 float calculeazaPretTotal(Nod* radacina) {
-	//calculeaza pretul tuturor masinilor din arbore.
 	if (radacina != NULL)
 	{
 		return radacina->info.pret + calculeazaPretTotal(radacina->dr) + calculeazaPretTotal(radacina->st);
@@ -243,7 +224,6 @@ float calculeazaPretTotal(Nod* radacina) {
 }
 
 float calculeazaPretulMasinilorUnuiSofer(Nod* radacina, const char* numeSofer) {
-	//calculeaza pretul tuturor masinilor unui sofer.
 	if (radacina != NULL)
 	{
 		if (strcmp(radacina->info.numeSofer, numeSofer) == 0)
@@ -255,12 +235,13 @@ float calculeazaPretulMasinilorUnuiSofer(Nod* radacina, const char* numeSofer) {
 		return 0;
 }
 
+
 int main() {
 
 	Nod* arbore = citireArboreDeMasiniDinFisier("masini_arbore.txt");
 	afisareArboreInOrdine(arbore);
 	Masina m = getMasinaByID(arbore, 2);
-	printf("\n\n-----------------------\n");
+	printf("\n\n=============================\n");
 	afisareMasina(m);
 
 	int i = determinaNumarNoduri(arbore);
@@ -269,7 +250,8 @@ int main() {
 	printf("\n\nInaltime arbore 1: %d", calculeazaInaltimeArbore(arbore));
 	printf("\n\n\Inaltime arbore 2: %d", calculeazaInaltimeArbore2(arbore));
 	printf("\n\n\Pret total: %.2f", calculeazaPretTotal(arbore));
-	printf("\n\n\Pret total per sofer: %.2f", calculeazaPretulMasinilorUnuiSofer(arbore, "Ionescu"));
+	
+	printf("\n\n\Pret total per sofer: %.2f", calculeazaPretulMasinilorUnuiSofer(arbore,  "Ionescu"));
 
 	dezalocareArboreDeMasini(&arbore);
 

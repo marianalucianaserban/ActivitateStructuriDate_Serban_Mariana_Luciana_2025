@@ -3,218 +3,203 @@
 #include <stdlib.h>
 #include <string.h>
 
-//trebuie sa folositi fisierul masini.txt
-//sau va creati un alt fisier cu alte date
-
-struct StructuraMasina {
+typedef struct StructuraMasina {
 	int id;
 	int nrUsi;
 	float pret;
 	char* model;
 	char* numeSofer;
 	unsigned char serie;
-};
-typedef struct StructuraMasina Masina;
+} Masina;
 
-//creare structura pentru un nod dintr-un arbore binar de cautare
-
-typedef struct Nod Nod;
-
-struct Nod {
+typedef struct Nod {
 	Masina info;
-	Nod* st;
-	Nod* dr;
-};
+	struct Nod* stanga;
+	struct Nod* dreapta;
+	int gradacinaEchilibru;
+} Nod;
+
 
 Masina citireMasinaDinFisier(FILE* file) {
 	char buffer[100];
 	char sep[3] = ",\n";
-	fgets(buffer, 100, file);
+	if (!fgets(buffer, 100, file)) return (Masina) { 0 };
+
 	char* aux;
 	Masina m1;
 	aux = strtok(buffer, sep);
 	m1.id = atoi(aux);
 	m1.nrUsi = atoi(strtok(NULL, sep));
 	m1.pret = atof(strtok(NULL, sep));
+
 	aux = strtok(NULL, sep);
 	m1.model = malloc(strlen(aux) + 1);
-	strcpy_s(m1.model, strlen(aux) + 1, aux);
+	strcpy(m1.model, aux);
 
 	aux = strtok(NULL, sep);
 	m1.numeSofer = malloc(strlen(aux) + 1);
-	strcpy_s(m1.numeSofer, strlen(aux) + 1, aux);
+	strcpy(m1.numeSofer, aux);
 
 	m1.serie = *strtok(NULL, sep);
 	return m1;
 }
 
+
 void afisareMasina(Masina masina) {
-	printf("Id: %d\n", masina.id);
-	printf("Nr. usi : %d\n", masina.nrUsi);
-	printf("Pret: %.2f\n", masina.pret);
-	printf("Model: %s\n", masina.model);
-	printf("Nume sofer: %s\n", masina.numeSofer);
-	printf("Serie: %c\n\n", masina.serie);
+	printf("Id: %d\nNr. usi: %d\nPret: %.2f\nModel: %s\nNume sofer: %s\nSerie: %c\n\n",
+		masina.id, masina.nrUsi, masina.pret, masina.model, masina.numeSofer, masina.serie);
 }
 
-int calculeazaInaltimeArbore(Nod* radacina) {
-	//calculeaza inaltimea arborelui care este data de 
-	//lungimea maxima de la radacina pana la cel mai indepartat nod frunza
-	if (radacina != NULL)
-	{
-		int inaltimeSt = calculeazaInaltimeArbore(radacina->st);
-		int inaltimeDr = calculeazaInaltimeArbore(radacina->dr);
-		return 1 + max(inaltimeDr, inaltimeSt); // return 1+(inaltimeSt> inaltimeDr ? inaltimeSt : inaltimeDr);
+
+int inaltime(Nod* radacina) {
+	if (!radacina) return 0;
+	int hSt = inaltime(radacina->stanga);
+	int hDr = inaltime(radacina->dreapta);
+	return 1 + (hSt > hDr ? hSt : hDr);
+}
+
+void rotireStanga(Nod** radacinaacina) {
+	Nod* aux = (*radacinaacina)->dreapta;
+	(*radacinaacina)->dreapta = aux->stanga;
+	aux->stanga = (*radacinaacina);
+	(*radacinaacina) = aux;
+}
+
+void rotireDreapta(Nod** radacinaacina) {
+	Nod* aux = (*radacinaacina)->stanga;
+	(*radacinaacina)->stanga = aux->dreapta;
+	aux->dreapta = (*radacinaacina);
+	(*radacinaacina) = aux;
+}
+
+
+void adaugaMasinaInArboreEchilibrat(Nod** radacinaacina, Masina m) {
+	if (*radacinaacina == NULL) {
+		Nod* nou = (Nod*)malloc(sizeof(Nod));
+		nou->info = m;
+		nou->stanga = nou->dreapta = NULL;
+		nou->gradacinaEchilibru = 0;
+		*radacinaacina = nou;
 	}
-	else
-		return 0;
-}
+	else if (m.id < (*radacinaacina)->info.id) {
+		adaugaMasinaInArboreEchilibrat(&(*radacinaacina)->stanga, m);
+	}
+	else {
+		adaugaMasinaInArboreEchilibrat(&(*radacinaacina)->dreapta, m);
+	}
 
-//ALTE FUNCTII NECESARE:
-// - aici veti adauga noile functii de care aveti nevoie.
-void rotireStanga(Nod** radacina)
-{
-	Nod* nod;
-	nod = (*radacina)->dr;
-	(*radacina)->dr = nod->st;
-	nod->st = *radacina;
-	*radacina = nod;
+	int st = inaltime((*radacinaacina)->stanga);
+	int dr = inaltime((*radacinaacina)->dreapta);
+	(*radacinaacina)->gradacinaEchilibru = st - dr;
 
-}
 
-void rotireDreapta(Nod** radacina)
-{
-	Nod* nod;
-	nod = (*radacina)->st;
-	(*radacina)->st = nod->dr;
-	nod->dr = *radacina;
-	*radacina = nod;
-}
-
-int calculeazaGradEchilibru(Nod* radacina)
-{
-	if (radacina != NULL)
-		return (calculeazaInaltimeArbore(radacina->st) - calculeazaInaltimeArbore(radacina->dr));
-	else
-		return 0;
-}
-
-void adaugaMasinaInArboreEchilibrat(Nod** radacina, Masina masinaNoua) {
-	//adauga o noua masina pe care o primim ca parametru in arbore,
-	//astfel incat sa respecte principiile de arbore binar de cautare ECHILIBRAT
-	//dupa o anumita cheie pe care o decideti - poate fi ID
-	if ((*radacina) != NULL)
-	{
-		if ((*radacina)->info.id > masinaNoua.id)
-		{
-			adaugaMasinaInArboreEchilibrat(&((*radacina)->st), masinaNoua);
-		}
+	if ((*radacinaacina)->gradacinaEchilibru > 1) {
+		if (m.id < (*radacinaacina)->stanga->info.id)
+			rotireDreapta(radacinaacina);
 		else {
-			adaugaMasinaInArboreEchilibrat(&((*radacina)->dr), masinaNoua);
+			rotireStanga(&(*radacinaacina)->stanga);
+			rotireDreapta(radacinaacina);
 		}
-		int grad = calculeazaGradEchilibru((*radacina));
-		if (grad == 2)//dezechilibru stanga
-		{
-			if (calculeazaGradEchilibru((*radacina)->st) == 1)
-				rotireDreapta(radacina);
-			else {
-				rotireStanga(&((*radacina)->st));
-				rotireDreapta(radacina);
-			}
-
-		}
-		else if (grad == -2)
-		{
-			if (calculeazaGradEchilibru((*radacina)->dr) == 1)
-			{
-				rotireDreapta(&((*radacina)->dr));
-			}
-			rotireStanga(radacina);
-		}
-
 	}
-	else
-	{
-		Nod* nod = (Nod*)malloc(sizeof(Nod));
-		nod->info = masinaNoua;
-		nod->dr = NULL;
-		nod->st = NULL;
-		*radacina = nod;
+	else if ((*radacinaacina)->gradacinaEchilibru < -1) {
+		if (m.id > (*radacinaacina)->dreapta->info.id)
+			rotireStanga(radacinaacina);
+		else {
+			rotireDreapta(&(*radacinaacina)->dreapta);
+			rotireStanga(radacinaacina);
+		}
 	}
-
 }
 
 Nod* citireArboreDeMasiniDinFisier(const char* numeFisier) {
-	//functia primeste numele fisierului, il deschide si citeste toate masinile din fisier
-	//prin apelul repetat al functiei citireMasinaDinFisier()
-	//ATENTIE - la final inchidem fisierul/stream-ul
-
-	FILE* file = fopen(numeFisier, "r");
+	FILE* f = fopen(numeFisier, "r");
+	if (!f) return NULL;
 	Nod* radacina = NULL;
-	while (!feof(file))
-	{
-		//facem ca mai jos si nu direct in functie,  adaugaMasinaInArbore(&radacina, citireMasinaDinDisier(file))
-		//deoarece daca fac ca mai sus o sa aloc de 2 ori spatiu, o sa aloc spatiu o data in citiremasina si inca
-		// o data spatiu in adaugaMasinaInArbore pentru ca am facut deepcopy
-
-		Masina m = citireMasinaDinFisier(file);
-		adaugaMasinaInArboreEchilibrat(&radacina, m);
+	while (!feof(f)) {
+		Masina m = citireMasinaDinFisier(f);
+		if (m.model) adaugaMasinaInArboreEchilibrat(&radacina, m);
 	}
-	fclose(file);
+	fclose(f);
 	return radacina;
 }
 
-void afisareMasiniDinArborePreordine(Nod* radacina) {
-	//afiseaza toate elemente de tip masina din arborele creat
-	//prin apelarea functiei afisareMasina()
-	//parcurgerea arborelui poate fi realizata in TREI moduri
-	//folositi toate cele TREI moduri de parcurgere
-	if (radacina != NULL)
-	{
+void afisareMasiniDinArborePreOrdine(Nod* radacina) {
+	if (radacina) {
 		afisareMasina(radacina->info);
-		afisareMasiniDinArborePreordine(radacina->st);
-		afisareMasiniDinArborePreordine(radacina->dr);
-
-	}
-
-
-}
-
-void dezalocareArboreDeMasini(Nod** radacina) {
-	//sunt dezalocate toate masinile si arborele de elemente
-	if ((*radacina) != NULL)
-	{
-		dezalocareArboreDeMasini(&(*radacina)->st);
-		dezalocareArboreDeMasini(&(*radacina)->dr);
-		free((*radacina)->info.model);
-		free((*radacina)->info.numeSofer);
-		free(*radacina);
-		*radacina = NULL;
+		afisareMasiniDinArborePreOrdine(radacina->stanga);
+		afisareMasiniDinArborePreOrdine(radacina->dreapta);
 	}
 }
 
-//Preluati urmatoarele functii din laboratorul precedent.
-//Acestea ar trebuie sa functioneze pe noul arbore echilibrat.
-
-int determinaNumarNoduri(/*arborele de masini*/);
-
-float calculeazaPretTotal(Nod* radacina)
-{
-	if (radacina != NULL)
-	{
-		return radacina->info.pret + calculeazaPretTotal(radacina->dr) + calculeazaPretTotal(radacina->st);
+void dezalocareArboreDeMasini(Nod* radacina) {
+	if (radacina) {
+		dezalocareArboreDeMasini(radacina->stanga);
+		dezalocareArboreDeMasini(radacina->dreapta);
+		free(radacina->info.model);
+		free(radacina->info.numeSofer);
+		free(radacina);
 	}
-	else
+}
+
+Masina getMasinaByID(Nod* radacina, int id) {
+	if (!radacina) 
+		return (Masina) { 
+		.model = NULL 
+	};
+
+	if (radacina->info.id == id) 
+		return radacina->info;
+
+	if (id < radacina->info.id) 
+		return getMasinaByID(radacina->stanga, id);
+
+	else return getMasinaByID(radacina->dreapta, id);
+}
+
+int determinaNumarNoduri(Nod* radacina) {
+	if (!radacina) 
 		return 0;
+
+	return 1 + determinaNumarNoduri(radacina->stanga) + determinaNumarNoduri(radacina->dreapta);
 }
 
-float calculeazaPretulMasinilorUnuiSofer(/*arbore de masini*/ const char* numeSofer);
-Masina getMasinaByID(/*arborele de masini*/int id);
+float calculeazaPretTotal(Nod* radacina) {
+	if (!radacina) return 0;
+	return radacina->info.pret + calculeazaPretTotal(radacina->stanga) + calculeazaPretTotal(radacina->dreapta);
+}
+
+float calculeazaPretulMasinilorUnuiSofer(Nod* radacina, const char* sofer) {
+	if (!radacina) return 0;
+	float s = strcmp(radacina->info.numeSofer, sofer) == 0 ? radacina->info.pret : 0;
+
+	return s + calculeazaPretulMasinilorUnuiSofer(radacina->stanga, sofer) + calculeazaPretulMasinilorUnuiSofer(radacina->dreapta, sofer);
+}
 
 int main() {
+	Nod* arbore = citireArboreDeMasiniDinFisier("masini.txt");
 
-	Nod* arbore = citireArboreDeMasiniDinFisier("masini_arbore.txt");
-	afisareMasiniDinArborePreordine(arbore);
-	printf("Pretul total: %.2f", calculeazaPretTotal(arbore));
+	printf("Afisare preordine:\n");
+	afisareMasiniDinArborePreOrdine(arbore);
+
+	printf("Numar total noduri: %d\n", determinaNumarNoduri(arbore));
+	printf("Pret total masini: %.2f\n", calculeazaPretTotal(arbore));
+	printf("\nInaltime arbore: %d\n", inaltime(arbore));
+
+
+	int idCautat = 2;
+
+	Masina m = getMasinaByID(arbore, idCautat);
+	if (m.model) {
+		printf("\nMasina cu ID %d:\n", idCautat);
+		afisareMasina(m);
+	}
+	else {
+		printf("\nMasina cu ID %d nu a fost gasita\n", idCautat);
+	}
+
+	printf("Pretul total al masinilor soferului Ionescu %.2f\n", calculeazaPretulMasinilorUnuiSofer(arbore, "Ionescu"));
+
+	dezalocareArboreDeMasini(arbore);
 	return 0;
+
 }

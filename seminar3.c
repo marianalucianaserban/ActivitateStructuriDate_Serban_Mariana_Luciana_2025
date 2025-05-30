@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-//trebuie sa folositi fisierul masini.txt
-//sau va creati un alt fisier cu alte date
 
 struct StructuraMasina {
 	int id;
@@ -60,6 +58,8 @@ Masina citireMasinaFisier(FILE* file) {
 	m1.numeSofer = malloc(strlen(aux) + 1);
 	strcpy_s(m1.numeSofer, strlen(aux) + 1, aux);
 	m1.serie = *strtok(NULL, sep);
+
+	
 	return m1;
 }
 
@@ -102,6 +102,8 @@ float pretMediuDupaNrUsi(Masina* vector, int nrMasini, int nrUsi)
 
 	return 0;
 }
+
+
 int main() {
 
 	Masina* masini = NULL;
